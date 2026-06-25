@@ -16,7 +16,12 @@
     <div class="grid gap-4 lg:grid-cols-2">
         <input name="title" placeholder="Judul" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100">
         <input name="cta_url" placeholder="URL CTA" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100">
-        <textarea name="description" placeholder="Deskripsi" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 lg:col-span-2"></textarea>
+        <textarea name="description" placeholder="Deskripsi singkat untuk kartu" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 lg:col-span-2"></textarea>
+        <textarea name="detail" rows="6" placeholder="Detail materi / rundown / benefit program" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 lg:col-span-2"></textarea>
+        <input name="duration" placeholder="Durasi, contoh: 2 hari" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100">
+        <input name="price" placeholder="Biaya, contoh: Hubungi admin" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100">
+        <input name="location" placeholder="Lokasi/Metode, contoh: Online / In-house" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100">
+        <input name="target_participants" placeholder="Sasaran peserta" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100">
         <input name="image" type="file" accept="image/*" class="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm">
         <input name="image_path" placeholder="URL gambar manual /storage/..." class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100">
         <input name="cta_label" value="Daftar Pelatihan" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100">
@@ -43,7 +48,12 @@
                         @method('PUT')
                         <input name="title" value="{{ $item->title }}" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500">
                         <textarea name="description" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500">{{ $item->description }}</textarea>
+                        <textarea name="detail" rows="6" placeholder="Detail materi / rundown / benefit program" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500">{{ $item->detail }}</textarea>
                         <div class="grid gap-3 sm:grid-cols-2">
+                            <input name="duration" value="{{ $item->duration }}" placeholder="Durasi" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500">
+                            <input name="price" value="{{ $item->price }}" placeholder="Biaya" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500">
+                            <input name="location" value="{{ $item->location }}" placeholder="Lokasi/Metode" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500">
+                            <input name="target_participants" value="{{ $item->target_participants }}" placeholder="Sasaran peserta" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500">
                             <input name="image" type="file" accept="image/*" class="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm">
                             <input name="image_path" value="{{ $item->image_path }}" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500">
                             <input name="cta_url" value="{{ $item->cta_url }}" class="rounded-2xl border border-slate-200 p-3 outline-none focus:border-red-500">
@@ -53,6 +63,9 @@
                         </div>
                     </form>
                     <div class="mt-4 flex gap-2">
+                        @if($item->slug)
+                            <a href="{{ route('training.show', $item) }}" target="_blank" class="rounded-2xl border border-slate-300 px-5 py-2 font-black text-slate-700">Preview Detail</a>
+                        @endif
                         <button form="brochure-update-{{ $item->id }}" class="rounded-2xl bg-slate-950 px-5 py-2 font-black text-white">Simpan</button>
                         <form method="POST" action="{{ route('admin.brochures.destroy',$item) }}">
                             @csrf

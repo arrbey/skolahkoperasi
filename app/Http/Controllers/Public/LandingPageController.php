@@ -11,6 +11,7 @@ use App\Models\Section;
 use App\Models\Setting;
 use App\Models\VisiMisi;
 use Illuminate\Contracts\View\View;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class LandingPageController extends Controller
 {
@@ -36,6 +37,27 @@ class LandingPageController extends Controller
             'qnas' => Qna::query()->where('is_active', true)->orderBy('order')->get()->toArray() ?: config('company.qnas'),
             'qnaImage' => Section::query()->where('slug', 'qna')->where('is_active', true)->value('image_path') ?: 'https://picsum.photos/seed/koperasi-qna/700/520',
             'contact' => ContactInfo::query()->first()?->toArray() ?: config('company.contact'),
+        ]);
+    }
+
+    public function showTraining(Brosur $brosur): View
+    {
+        if (! $brosur->is_active) {
+            throw new NotFoundHttpException;
+        }
+
+        $settings = Setting::query()->pluck('value', 'key')->all() ?: config('company.settings');
+
+        return view('training-detail', [
+            'settings' => $settings,
+            'navigation' => config('company.navigation'),
+            'brochure' => $brosur,
+            'relatedBrochures' => Brosur::query()
+                ->where('is_active', true)
+                ->whereKeyNot($brosur->getKey())
+                ->orderBy('order')
+                ->limit(3)
+                ->get(),
         ]);
     }
 }

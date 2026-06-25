@@ -16,7 +16,7 @@
                         <div class="flex flex-1 flex-col p-6">
                             <h3 class="font-display text-xl font-extrabold tracking-[-0.02em]">{{ $brochure['title'] ?? 'Program Pelatihan' }}</h3>
                             <p class="mt-3 flex-1 leading-7 text-neutral-600">{{ $brochure['description'] ?? 'Program pelatihan koperasi yang dapat disesuaikan dengan kebutuhan lembaga.' }}</p>
-                            <a href="{{ $brochure['cta_url'] ?? 'https://skolah.com/daftar' }}" target="_blank" rel="noopener" class="mt-6 inline-flex w-full justify-center rounded-full bg-[#CC0000] px-5 py-3 font-extrabold text-white transition hover:bg-[#990000]">{{ $brochure['cta_label'] ?? 'Daftar Pelatihan' }}</a>
+                            <a href="{{ route('training.show', $brochure['slug']) }}" class="mt-6 inline-flex w-full justify-center rounded-full bg-[#CC0000] px-5 py-3 font-extrabold text-white transition hover:bg-[#990000]">Lihat Detail</a>
                         </div>
                     </article>
                 @empty

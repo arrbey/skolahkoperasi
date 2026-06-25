@@ -7,6 +7,7 @@ use App\Http\Controllers\Public\LandingPageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', LandingPageController::class)->name('home');
+Route::get('/training/{brosur:slug}', [LandingPageController::class, 'showTraining'])->name('training.show');
 Route::get('/tentang', LandingPageController::class)->name('about');
 Route::redirect('/kontak', '/#contact')->name('contact');
 Route::redirect('/brosur', '/#brochures')->name('brochures');

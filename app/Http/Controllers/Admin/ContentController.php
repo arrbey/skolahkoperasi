@@ -38,8 +38,8 @@ class ContentController extends Controller
         $hero = Section::firstOrCreate(['slug' => 'hero']);
 
         if ($request->hasFile('image')) {
-            $this->deleteLocalUpload($hero->image_path);
-            $data['image_path'] = Storage::url($request->file('image')->store('admin/hero', 'public'));
+            $this->deleteUploadedFile($hero->image_path);
+            $data['image_path'] = Storage::disk('s3')->url($request->file('image')->store('admin/hero', 's3'));
         }
 
         $hero->update([...$data, 'is_active' => true]);
@@ -115,7 +115,7 @@ class ContentController extends Controller
 
     public function destroyBrochure(Brosur $brochure): RedirectResponse
     {
-        $this->deleteLocalUpload($brochure->image_path);
+        $this->deleteUploadedFile($brochure->image_path);
         $brochure->delete();
         return back()->with('success', 'Brosur berhasil dihapus.');
     }
@@ -139,8 +139,8 @@ class ContentController extends Controller
         $section = Section::firstOrCreate(['slug' => 'qna']);
 
         if ($request->hasFile('image')) {
-            $this->deleteLocalUpload($section->image_path);
-            $data['image_path'] = Storage::url($request->file('image')->store('admin/qna', 'public'));
+            $this->deleteUploadedFile($section->image_path);
+            $data['image_path'] = Storage::disk('s3')->url($request->file('image')->store('admin/qna', 's3'));
         }
 
         $section->update($data + ['is_active' => true]);
@@ -201,8 +201,8 @@ class ContentController extends Controller
         ]);
 
         if ($request->hasFile('logo')) {
-            $this->deleteLocalUpload(Setting::where('key', 'logo')->value('value'));
-            $data['logo'] = Storage::url($request->file('logo')->store('admin/branding', 'public'));
+            $this->deleteUploadedFile(Setting::where('key', 'logo')->value('value'));
+            $data['logo'] = Storage::disk('s3')->url($request->file('logo')->store('admin/branding', 's3'));
         } else {
             unset($data['logo']);
         }
@@ -230,8 +230,13 @@ class ContentController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
+            'detail' => ['nullable', 'string'],
             'image_path' => ['nullable', 'string', 'max:500'],
             'image' => ['nullable', File::image()->max(4 * 1024)],
+            'duration' => ['nullable', 'string', 'max:255'],
+            'price' => ['nullable', 'string', 'max:255'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'target_participants' => ['nullable', 'string'],
             'cta_url' => ['required', 'url', 'max:500'],
             'cta_label' => ['required', 'string', 'max:100'],
             'order' => ['required', 'integer', 'min:0'],
@@ -241,8 +246,8 @@ class ContentController extends Controller
         unset($data['image']);
 
         if ($request->hasFile('image')) {
-            $this->deleteLocalUpload($brochure?->image_path);
-            $data['image_path'] = Storage::url($request->file('image')->store('admin/brochures', 'public'));
+            $this->deleteUploadedFile($brochure?->image_path);
+            $data['image_path'] = Storage::disk('s3')->url($request->file('image')->store('admin/brochures', 's3'));
         }
 
         return $data + ['is_active' => $request->boolean('is_active')];
@@ -258,12 +263,21 @@ class ContentController extends Controller
         ]) + ['is_active' => $request->boolean('is_active')];
     }
 
-    private function deleteLocalUpload(?string $url): void
+    private function deleteUploadedFile(?string $url): void
     {
-        if (! $url || ! str_starts_with($url, '/storage/')) {
+        if (! $url) {
             return;
         }
 
-        Storage::disk('public')->delete(str_replace('/storage/', '', $url));
+        if (str_starts_with($url, '/storage/')) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $url));
+            return;
+        }
+
+        $awsUrl = rtrim((string) config('filesystems.disks.s3.url'), '/').'/';
+
+        if ($awsUrl !== '/' && str_starts_with($url, $awsUrl)) {
+            Storage::disk('s3')->delete(str_replace($awsUrl, '', $url));
+        }
     }
 }
